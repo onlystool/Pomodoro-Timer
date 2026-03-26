@@ -31,6 +31,14 @@
           <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
         </svg>
       </button>
+      <button class="titlebar-btn" id="reportBtn" title="数据报告">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </button>
       <button class="titlebar-btn" id="settingsBtn" title="设置">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
@@ -79,6 +87,9 @@
       <span class="pomo-number" id="pomoNumber">#1</span>
       <span class="pomo-message" id="pomoMessage">准备开始专注！</span>
     </div>
+
+    <!-- Report Button (mobile/iPad, shown when no titlebar) -->
+    <div class="mobile-report-btn" id="mobileReportBtn">📊 数据报告</div>
 
     <!-- Tasks Section -->
     <div class="tasks-section">
@@ -167,6 +178,73 @@
       </div>
       <div class="modal-footer">
         <button class="save-settings-btn" id="saveSettingsBtn">保存设置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div class="modal-overlay" id="reportModal" style="display: none;">
+    <div class="modal report-modal">
+      <div class="modal-header">
+        <h2>📊 数据报告</h2>
+        <button class="modal-close" id="closeReportBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Today Stats -->
+        <div class="report-today">
+          <h3>今日概览</h3>
+          <div class="report-stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="todayPomos">0</div>
+              <div class="stat-label">🍅 番茄数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="todayMinutes">0</div>
+              <div class="stat-label">⏱ 专注分钟</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="todayTasks">0</div>
+              <div class="stat-label">✅ 完成任务</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="report-chart-section">
+          <h3>近 7 天趋势</h3>
+          <div class="report-chart" id="reportChart"></div>
+        </div>
+
+        <!-- Focus Analysis & Suggestions -->
+        <div class="report-analysis">
+          <h3>💡 专注力分析 & 建议</h3>
+          <div class="analysis-card" id="analysisCard">
+            <div class="analysis-icon">🧠</div>
+            <div class="analysis-text">
+              <div class="analysis-title" id="analysisTitle">分析中...</div>
+              <div class="analysis-desc" id="analysisDesc">请完成一些番茄钟来获取专注建议。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="report-summary">
+          <h3>累计统计</h3>
+          <div class="report-stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="totalPomos">0</div>
+              <div class="stat-label">总番茄数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="totalHours">0</div>
+              <div class="stat-label">总专注小时</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="totalDays">0</div>
+              <div class="stat-label">活跃天数</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

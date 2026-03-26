@@ -17,6 +17,7 @@ let pomodoroCount = 0;
 let tasks = [];
 let activeTaskId = null;
 let estPomoInput = 1;
+let dailyStats = {}; // { 'YYYY-MM-DD': { pomodoros: 0, minutes: 0, tasks: 0 } }
 
 // Per-mode custom durations (set by the picker, persisted)
 let modeDurations = {
@@ -43,6 +44,10 @@ const closeBtn = document.getElementById('closeBtn');
 const settingsModal = document.getElementById('settingsModal');
 const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+const reportBtn = document.getElementById('reportBtn'); // Desktop
+const mobileReportBtn = document.getElementById('mobileReportBtn'); // Mobile
+const reportModal = document.getElementById('reportModal');
+const closeReportBtn = document.getElementById('closeReportBtn');
 const addTaskBtn = document.getElementById('addTaskBtn');
 const addTaskForm = document.getElementById('addTaskForm');
 const taskInput = document.getElementById('taskInput');
@@ -143,6 +148,13 @@ function onTimerComplete() {
   if (currentMode === 'pomodoro') {
     pomodoroCount++;
     updatePomoCounter();
+    
+    // Update daily stats
+    const today = getTodayDateString();
+    initDailyStats(today);
+    dailyStats[today].pomodoros++;
+    dailyStats[today].minutes += modeDurations['pomodoro'];
+    saveStats();
 
     // Increment active task's done count
     if (activeTaskId) {
@@ -420,7 +432,27 @@ function addTask(name, estPomo) {
 
 function toggleTaskComplete(id) {
   const task = tasks.find((t) => t.id === id);
-  if (task) { task.completed = !task.completed; saveTasks(); renderTasks(); }
+  if (task) { 
+    task.completed = !task.completed; 
+    
+    // Update stats if completed
+    if (task.completed) {
+      const today = getTodayDateString();
+      initDailyStats(today);
+      dailyStats[today].tasks++;
+      saveStats();
+    } else {
+      // Reverted completion
+      const today = getTodayDateString();
+      if (dailyStats[today] && dailyStats[today].tasks > 0) {
+        dailyStats[today].tasks--;
+        saveStats();
+      }
+    }
+    
+    saveTasks(); 
+    renderTasks(); 
+  }
 }
 
 function setActiveTask(id) {
@@ -484,6 +516,32 @@ function saveTasks() {
   } catch (e) { console.error('Failed to save tasks:', e); }
 }
 
+function getTodayDateString() {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+function initDailyStats(dateStr) {
+  if (!dailyStats[dateStr]) {
+    dailyStats[dateStr] = { pomodoros: 0, minutes: 0, tasks: 0 };
+  }
+}
+
+function loadStats() {
+  try {
+    const saved = localStorage.getItem('fanqie-stats');
+    if (saved) {
+      dailyStats = JSON.parse(saved);
+    }
+  } catch (e) { console.error('Failed to load stats:', e); }
+}
+
+function saveStats() {
+  try {
+    localStorage.setItem('fanqie-stats', JSON.stringify(dailyStats));
+  } catch (e) { console.error('Failed to save stats:', e); }
+}
+
 // ===== Pin/AlwaysOnTop =====
 async function updatePinButton() {
   if (!isElectron) return;
@@ -511,6 +569,110 @@ function applySettings() {
   settings.longBreakInterval = parseInt(document.getElementById('settingLongBreakInterval').value) || 4;
   saveSettings();
   closeSettings();
+}
+
+// ===== Report UI =====
+function openReport() {
+  loadStats();
+  renderReport();
+  reportModal.style.display = 'flex';
+}
+
+function closeReport() {
+  reportModal.style.display = 'none';
+}
+
+function renderReport() {
+  const todayStr = getTodayDateString();
+  const todayData = dailyStats[todayStr] || { pomodoros: 0, minutes: 0, tasks: 0 };
+
+  // 1. Today Stats
+  document.getElementById('todayPomos').textContent = todayData.pomodoros;
+  document.getElementById('todayMinutes').textContent = todayData.minutes;
+  document.getElementById('todayTasks').textContent = todayData.tasks;
+
+  // 2. Total Summary & Average Calc
+  let totalPomos = 0, totalMins = 0, totalTasks = 0;
+  const days = Object.keys(dailyStats);
+  const totalDays = days.length;
+  
+  days.forEach(date => {
+    totalPomos += dailyStats[date].pomodoros || 0;
+    totalMins += dailyStats[date].minutes || 0;
+    totalTasks += dailyStats[date].tasks || 0;
+  });
+
+  document.getElementById('totalPomos').textContent = totalPomos;
+  document.getElementById('totalHours').textContent = (totalMins / 60).toFixed(1);
+  document.getElementById('totalDays').textContent = totalDays;
+
+  // 3. Weekly Chart
+  const chartEl = document.getElementById('reportChart');
+  chartEl.innerHTML = '';
+  
+  const last7Days = [];
+  let maxPomos = 1; // avoid div by 0
+  
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const shortLabel = `${d.getMonth()+1}/${d.getDate()}`;
+    const p = dailyStats[dateStr] ? dailyStats[dateStr].pomodoros : 0;
+    const m = dailyStats[dateStr] ? dailyStats[dateStr].minutes : 0;
+    last7Days.push({ dateStr, label: shortLabel, pomodoros: p, minutes: m, isToday: i === 0 });
+    if (p > maxPomos) maxPomos = p;
+  }
+
+  last7Days.forEach(day => {
+    const heightPct = Math.max((day.pomodoros / maxPomos) * 100, 2); // min 2%
+    
+    const barHtml = `
+      <div class="chart-bar-container">
+        <div class="chart-value-tooltip">${day.pomodoros}个 / ${day.minutes}分</div>
+        <div class="chart-bar ${day.isToday ? 'today' : ''}" style="height: ${heightPct}%"></div>
+        <div class="chart-label">${day.label}</div>
+      </div>
+    `;
+    chartEl.insertAdjacentHTML('beforeend', barHtml);
+  });
+
+  // 4. Focus Analysis
+  const titleEl = document.getElementById('analysisTitle');
+  const descEl = document.getElementById('analysisDesc');
+  const iconEl = document.querySelector('.analysis-icon');
+
+  if (totalDays === 0 || totalPomos === 0) {
+    iconEl.textContent = '🌱';
+    titleEl.textContent = '欢迎来到番茄时钟';
+    descEl.textContent = '你还没有完成任何番茄钟，设定一个小目标，开始你的第一个番茄钟吧！';
+    return;
+  }
+
+  const avgPomos = totalPomos / totalDays;
+  const todayPomo = todayData.pomodoros;
+
+  if (todayPomo === 0) {
+    iconEl.textContent = '☕';
+    titleEl.textContent = '良好的开端是成功的一半';
+    descEl.textContent = `你还没开始今天的专注。你平均每天能完成 ${(avgPomos).toFixed(1)} 个番茄，试着完成第一个吧。`;
+  } else if (todayPomo < avgPomos * 0.5) {
+    iconEl.textContent = '🐢';
+    titleEl.textContent = '循序渐进';
+    descEl.textContent = `今天已完成 ${todayPomo} 个番茄。还在热身阶段，保持节奏，不要着急，你可以做得更好。`;
+  } else if (todayPomo >= avgPomos * 0.5 && todayPomo < avgPomos) {
+    iconEl.textContent = '🏃';
+    titleEl.textContent = '状态不错';
+    descEl.textContent = `今天已完成 ${todayPomo} 个番茄。马上就要追平你的平均水平了，继续保持当前的专注状态！`;
+  } else if (todayPomo >= avgPomos && todayPomo <= avgPomos * 1.5) {
+    iconEl.textContent = '🔥';
+    titleEl.textContent = '表现优异！';
+    descEl.textContent = `你今天超越了平均水平！高效工作的同时，别忘了利用短休息时间让眼睛和大脑放松一下。`;
+  } else {
+    iconEl.textContent = '👑';
+    titleEl.textContent = '沉浸心流状态';
+    descEl.textContent = `太惊人了，你今天完成了 ${todayPomo} 个番茄！远超平时水平。请务必安排一段长休息来恢复精力！`;
+  }
 }
 
 // ===== Event Listeners =====
@@ -545,12 +707,20 @@ function setupEventListeners() {
   }
 
   settingsBtn.addEventListener('click', () => openSettings());
+  if (reportBtn) reportBtn.addEventListener('click', () => openReport());
+  if (mobileReportBtn) mobileReportBtn.addEventListener('click', () => openReport());
 
   // Settings modal
   closeSettingsBtn.addEventListener('click', closeSettings);
   saveSettingsBtn.addEventListener('click', applySettings);
   settingsModal.addEventListener('click', (e) => {
     if (e.target === settingsModal) closeSettings();
+  });
+
+  // Report modal
+  closeReportBtn.addEventListener('click', closeReport);
+  reportModal.addEventListener('click', (e) => {
+    if (e.target === reportModal) closeReport();
   });
 
   // Add Task
@@ -613,4 +783,5 @@ function setupEventListeners() {
 }
 
 // ===== Start =====
+loadStats();
 init();
