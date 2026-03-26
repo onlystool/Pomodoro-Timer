@@ -924,6 +924,68 @@ body .timer-action-btn.running {
   transform: translateY(0);
 }
 
+/* History List */
+.report-history-section {
+  background: white;
+  margin-bottom: 24px;
+}
+
+.history-list {
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #eee;
+  font-size: 13px;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-time {
+  color: #888;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.history-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.history-title {
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.history-empty {
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  padding: 10px 0;
+}
+
 /* Focus Analysis */
 .analysis-card {
   background: #fdf0ef;

@@ -155,6 +155,11 @@ function onTimerComplete() {
     dailyStats[today].pomodoros++;
     dailyStats[today].minutes += modeDurations['pomodoro'];
     saveStats();
+    
+    // History event
+    const activeTask = tasks.find(t => t.id === activeTaskId);
+    const taskName = activeTask ? activeTask.name : '专注';
+    addHistoryEvent('pomodoro', `完成专注 - ${taskName}`);
 
     // Increment active task's done count
     if (activeTaskId) {
@@ -441,6 +446,7 @@ function toggleTaskComplete(id) {
       initDailyStats(today);
       dailyStats[today].tasks++;
       saveStats();
+      addHistoryEvent('task', `完成任务 - ${task.name}`);
     } else {
       // Reverted completion
       const today = getTodayDateString();
@@ -523,8 +529,18 @@ function getTodayDateString() {
 
 function initDailyStats(dateStr) {
   if (!dailyStats[dateStr]) {
-    dailyStats[dateStr] = { pomodoros: 0, minutes: 0, tasks: 0 };
+    dailyStats[dateStr] = { pomodoros: 0, minutes: 0, tasks: 0, history: [] };
+  } else if (!dailyStats[dateStr].history) {
+    dailyStats[dateStr].history = [];
   }
+}
+
+function addHistoryEvent(type, title) {
+  const today = getTodayDateString();
+  initDailyStats(today);
+  const timeStr = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  dailyStats[today].history.push({ time: timeStr, type, title });
+  saveStats();
 }
 
 function loadStats() {
@@ -630,6 +646,28 @@ function renderReport() {
   const chartEl = document.getElementById('reportChart');
   chartEl.innerHTML = '';
   
+  // 3. Today History List
+  const historyEl = document.getElementById('reportHistoryList');
+  historyEl.innerHTML = '';
+  const historyData = todayData.history || [];
+  
+  if (historyData.length === 0) {
+    historyEl.innerHTML = '<li class="history-empty">今天还没有记录哦，开始专注吧！</li>';
+  } else {
+    // Show newest at top
+    [...historyData].reverse().forEach(evt => {
+      const icon = evt.type === 'pomodoro' ? '🍅' : '✅';
+      const li = `
+        <li class="history-item">
+          <span class="history-time">${evt.time}</span>
+          <span class="history-icon">${icon}</span>
+          <span class="history-title">${escapeHtml(evt.title)}</span>
+        </li>
+      `;
+      historyEl.insertAdjacentHTML('beforeend', li);
+    });
+  }
+
   const last7Days = [];
   let maxPomos = 1; // avoid div by 0
   
