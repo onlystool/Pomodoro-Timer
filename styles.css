@@ -45,7 +45,7 @@ body {
   align-items: center;
   justify-content: space-between;
   height: 38px;
-  padding: 0 8px 0 14px;
+  padding: 0 8px 0 75px;
   -webkit-app-region: drag;
   position: sticky;
   top: 0;

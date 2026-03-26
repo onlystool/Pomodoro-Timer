@@ -1,11 +1,11 @@
 // ===== State =====
 const DEFAULT_SETTINGS = {
-  pomodoro: 25,
-  shortBreak: 5,
-  longBreak: 15,
-  autoBreak: true,
+  autoBreak: false,
   autoPomodoro: false,
   longBreakInterval: 4,
+  pomodoroDuration: 25,
+  shortBreakDuration: 5,
+  longBreakDuration: 15,
 };
 
 let settings = { ...DEFAULT_SETTINGS };
@@ -480,9 +480,12 @@ function loadSettings() {
     const saved = localStorage.getItem('fanqie-settings');
     if (saved) {
       const data = JSON.parse(saved);
-      // Only load settings, do NOT load modeDurations so it always defaults to 25/5/15
       settings = { ...DEFAULT_SETTINGS, ...data };
     }
+    // Initialize modeDurations from custom settings on boot
+    modeDurations.pomodoro = settings.pomodoroDuration;
+    modeDurations.shortBreak = settings.shortBreakDuration;
+    modeDurations.longBreak = settings.longBreakDuration;
   } catch (e) { console.error('Failed to load settings:', e); }
 }
 
@@ -553,6 +556,11 @@ function openSettings() {
   document.getElementById('settingAutoBreak').checked = settings.autoBreak;
   document.getElementById('settingAutoPomodoro').checked = settings.autoPomodoro;
   document.getElementById('settingLongBreakInterval').value = settings.longBreakInterval;
+  
+  document.getElementById('settingPomodoro').value = settings.pomodoroDuration;
+  document.getElementById('settingShortBreak').value = settings.shortBreakDuration;
+  document.getElementById('settingLongBreak').value = settings.longBreakDuration;
+
   settingsModal.style.display = 'flex';
 }
 
@@ -564,8 +572,23 @@ function applySettings() {
   settings.autoBreak = document.getElementById('settingAutoBreak').checked;
   settings.autoPomodoro = document.getElementById('settingAutoPomodoro').checked;
   settings.longBreakInterval = parseInt(document.getElementById('settingLongBreakInterval').value) || 4;
+  
+  settings.pomodoroDuration = parseInt(document.getElementById('settingPomodoro').value) || 25;
+  settings.shortBreakDuration = parseInt(document.getElementById('settingShortBreak').value) || 5;
+  settings.longBreakDuration = parseInt(document.getElementById('settingLongBreak').value) || 15;
+
+  // Update current durations to match new defaults
+  modeDurations.pomodoro = settings.pomodoroDuration;
+  modeDurations.shortBreak = settings.shortBreakDuration;
+  modeDurations.longBreak = settings.longBreakDuration;
+
   saveSettings();
   closeSettings();
+  
+  if (!isRunning) {
+    updatePickerDisplay();
+    timeLeft = modeDurations[currentMode] * 60;
+  }
 }
 
 // ===== Report UI =====
