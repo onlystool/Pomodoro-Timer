@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fanqie-v2';
+const CACHE_NAME = 'fanqie-v3';
 const ASSETS = [
   './',
   './index.html',
