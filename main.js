@@ -89,23 +89,33 @@ function createTray() {
 }
 
 function createTrayIcon(timeText) {
-  // Create a 32x32 tray icon with the time text
-  const size = 22;
-  // Use nativeImage to create a simple icon
-  // We'll draw a red circle (tomato) as the tray icon
+  // Create a 44x44 retina tray icon (22x22 visual size in menubar)
+  const size = 44;
   const canvas = Buffer.alloc(size * size * 4);
-  const cx = size / 2;
-  const cy = size / 2;
-  const r = size / 2 - 1;
+  const cx = 22;
+  const cy = 25;
+  const r = 18;
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const idx = (y * size + x) * 4;
       const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-      if (dist <= r) {
-        canvas[idx] = 186;     // R
+      
+      // Stem: simple green T-shape at the top
+      const isStem = (x >= 20 && x <= 24 && y >= 4 && y <= 10) || 
+                     (x >= 14 && x <= 30 && y >= 6 && y <= 9);
+
+      if (isStem) {
+        // macOS raw buffer expects BGRA
+        canvas[idx] = 80;      // B
+        canvas[idx + 1] = 175; // G
+        canvas[idx + 2] = 76;  // R
+        canvas[idx + 3] = 255; // A
+      } else if (dist <= r) {
+        // App background color #ba4949 (R:186, G:73, B:73)
+        canvas[idx] = 73;      // B
         canvas[idx + 1] = 73;  // G
-        canvas[idx + 2] = 73;  // B
+        canvas[idx + 2] = 186; // R
         canvas[idx + 3] = 255; // A
       } else {
         canvas[idx] = 0;
