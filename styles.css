@@ -791,6 +791,67 @@ body .timer-action-btn.running {
   transform: translateY(6px);
 }
 
+/* ===== Timer Complete Animation ===== */
+
+/* Full-screen flash overlay */
+.timer-flash {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 150;
+  pointer-events: none;
+}
+
+body.timer-complete .timer-flash {
+  display: block;
+  animation: flashPulse 0.5s ease 3;
+}
+
+@keyframes flashPulse {
+  0%, 100% { background: transparent; }
+  50% { background: rgba(255, 255, 255, 0.35); }
+}
+
+/* Timer display pulse */
+body.timer-complete .timer-display {
+  animation: timerPulse 0.6s ease 4;
+}
+
+@keyframes timerPulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.12);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 0 60px rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Timer container bounce */
+body.timer-complete .timer-container {
+  animation: containerBounce 0.5s ease 2;
+}
+
+@keyframes containerBounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-8px); }
+  60% { transform: translateY(-4px); }
+}
+
+/* Pomo message celebration */
+body.timer-complete .pomo-message {
+  animation: messageGlow 0.8s ease 3;
+}
+
+@keyframes messageGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.08); }
+}
+
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 6px;

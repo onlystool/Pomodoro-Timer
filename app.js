@@ -108,6 +108,7 @@ function stopTimer() {
 
 function onTimerComplete() {
   playAlarm();
+  playCompleteAnimation();
 
   if (currentMode === 'pomodoro') {
     pomodoroCount++;
@@ -205,6 +206,14 @@ function updatePomoMessage() {
   } else {
     pomoMessage.textContent = 'Time for a break!';
   }
+}
+
+// ===== Complete Animation =====
+function playCompleteAnimation() {
+  document.body.classList.add('timer-complete');
+  setTimeout(() => {
+    document.body.classList.remove('timer-complete');
+  }, 3000);
 }
 
 // ===== Alarm Sound =====
