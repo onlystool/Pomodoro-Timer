@@ -480,10 +480,8 @@ function loadSettings() {
     const saved = localStorage.getItem('fanqie-settings');
     if (saved) {
       const data = JSON.parse(saved);
+      // Only load settings, do NOT load modeDurations so it always defaults to 25/5/15
       settings = { ...DEFAULT_SETTINGS, ...data };
-      if (data.modeDurations) {
-        modeDurations = { ...modeDurations, ...data.modeDurations };
-      }
     }
   } catch (e) { console.error('Failed to load settings:', e); }
 }
@@ -491,8 +489,7 @@ function loadSettings() {
 function saveSettings() {
   try {
     localStorage.setItem('fanqie-settings', JSON.stringify({
-      ...settings,
-      modeDurations,
+      ...settings
     }));
   } catch (e) { console.error('Failed to save settings:', e); }
 }
@@ -693,7 +690,13 @@ function setupEventListeners() {
 
   // Mode tabs
   modeTabs.forEach((tab) => {
-    tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+    tab.addEventListener('click', () => {
+      if (isRunning) {
+        // Do not stop or switch mode if timer is already running
+        return;
+      }
+      switchMode(tab.dataset.mode);
+    });
   });
 
   // Title bar buttons (Electron only)
