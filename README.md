@@ -1,84 +1,64 @@
-# 🍅 番茄时钟 (Pomodoro Timer)
+<div align="center">
+  <h1>🍅 Pomodoro Timer</h1>
+  <p>A beautifully designed, premium cross-platform Pomodoro Timer that helps you stay focused and productive. Featuring Data Analytics, PWA Support, and a macOS Desktop App!</p>
+  <a href="https://onlystool.github.io/Pomodoro-Timer/"><strong>Live Demo & Web App</strong></a>
+</div>
 
-一款 macOS 桌面番茄时钟应用，基于 [Pomofocus.io](https://pomofocus.io/) 设计，使用 Electron 构建，支持窗口常驻顶部。
+## ✨ Features
 
-![Pomodoro Timer](https://img.shields.io/badge/Platform-macOS-blue) ![Electron](https://img.shields.io/badge/Electron-33-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
+### ⏱ Flexible & Intuitive Timer
+- **Draggable Time Adjustment**: Quickly slide the numbers to adjust your timer length (1–60 mins) or use the quick-step arrows (`1, 3, 5, 10, 15, 20...`) to jump to your favorite intervals.
+- **Customizable Defaults**: Set your preferred default durations for Focus, Short Breaks, and Long Breaks via the Settings panel.
+- **Auto-Transitions**: Seamlessly automate the flow between your work and break sessions.
 
-## ✨ 功能特性
+### 📝 Task Management
+- Add tasks, estimate required Pomodoros, and check them off upon completion.
+- Keeps you accountable by comparing estimated vs. actual Pomodoros.
 
-### 🕐 计时器
-- **三种模式**：Pomodoro (25min) / Short Break (5min) / Long Break (15min)
-- 模式切换时背景色动态渐变（🔴 红 → 🟢 青绿 → 🔵 蓝）
-- 大字号倒计时显示，一目了然
-- 空格键快捷键快速开始/暂停
+### 📊 Data Analytics & Reporting
+- **Today's Overview**: Track total focused minutes, Pomodoros, and completed tasks for the day.
+- **7-Day Trend Chart**: Beautiful daily bar charts visually representing your weekly productivity.
+- **Smart Focus Analysis**: Get personalized feedback comparing today's performance to your historical average (e.g., "Warming up", "Flow state"). 
+- **Activity Log**: A chronological timeline detailing exactly when you finished a Pomodoro or completed a task.
+- *Privacy First*: All data is stored purely locally on your device (`localStorage`).
 
-### 📋 任务管理
-- 添加任务并设置预估番茄数
-- 点选当前正在进行的任务
-- 完成番茄后自动累计任务的已用番茄数
-- 一键清除已完成/全部任务
+### 💻 macOS Native Desktop App 
+- **Always on Top**: Float the timer above all other windows by clicking the large orange tomato 🍅 in the titlebar.
+- **System Tray Icon**: A high-resolution red tomato in the macOS menubar dynamically displaying your active countdown.
+- **Native Notifications & Sounds**: Receive crisp, native desktop alerts and a gentle chime when your timer finishes.
+- **Custom Window Controls**: Custom titlebar integrating seamlessly alongside native macOS window controls.
 
-### 🖥 macOS 原生体验
-- **窗口常驻顶部**（Always on Top），可通过 📌 图标切换
-- **菜单栏倒计时**：关闭窗口后，菜单栏实时显示剩余时间和当前模式
-- **系统托盘**：点击托盘图标快速显示/隐藏窗口
-- **系统通知**：计时结束时推送通知提醒
-- **音效提醒**：优雅的和弦提示音
+### 📱 iOS & iPadOS Support (PWA)
+- Installable directly to your device by opening Safari, tapping **Share**, and selecting **Add to Home Screen**.
+- Fully responsive layout with proper safe-area support for modern mobile devices and iPads.
+- **Offline Capable**: A powerful Service Worker caches all assets, ensuring the app works perfectly without an internet connection!
 
-### ⚙️ 自定义设置
-- 自定义各模式时长
-- 自动开始休息 / 自动开始番茄
-- 设置长休息间隔（默认每 4 个番茄后）
+## 🚀 Installation & Usage
 
-### 💾 数据持久化
-- 任务列表、设置、番茄计数自动保存到本地
-- 关闭重开不会丢失任何数据
+### 🌐 Web / Mobile (PWA)
+Simply visit [Pomodoro Timer](https://onlystool.github.io/Pomodoro-Timer/) on any browser. 
 
-## 📦 安装与使用
+### 🍏 macOS Desktop App
+If you'd like to use the app standalone on a Mac with the Always-On-Top and Menubar features:
 
-### 前置要求
-- [Node.js](https://nodejs.org/) (v18+)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/onlystool/Pomodoro-Timer.git
+   cd Pomodoro-Timer
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Electron app:
+   ```bash
+   npm start
+   ```
 
-### 安装
-```bash
-git clone https://github.com/onlystool/Pomodoro-Timer.git
-cd Pomodoro-Timer
-npm install
-```
+## 🛠 Tech Stack
+- **Frontend**: Vanilla HTML5, CSS3, JavaScript (Zero bloat).
+- **Desktop**: Electron.
+- **PWA**: Advanced Service Workers & App Manifest.
 
-### 运行
-```bash
-npm start
-```
-
-## 🗂 项目结构
-
-```
-fanqie/
-├── main.js          # Electron 主进程（窗口管理、系统托盘、IPC）
-├── preload.js       # 安全 API 桥接
-├── index.html       # 界面结构
-├── styles.css       # 样式（三种模式配色、动画、响应式）
-├── app.js           # 应用逻辑（计时器、任务管理、持久化）
-├── package.json     # 项目配置
-└── .gitignore
-```
-
-## ⌨️ 快捷键
-
-| 快捷键 | 功能 |
-|--------|------|
-| `Space` | 开始 / 暂停计时 |
-| 📌 按钮 | 切换窗口常驻顶部 |
-
-## 🎨 设计参考
-
-视觉设计灵感来源于 [Pomofocus.io](https://pomofocus.io/)，包括：
-- 模式对应的背景色方案
-- 半透明计时器容器
-- 按压效果的 START/STOP 按钮
-- 白色卡片式任务列表
-
-## 📄 License
-
-[MIT](LICENSE)
+## 🤝 Contributing
+Contributions, issues, and feature requests are immensely welcome! Please feel free to check out the issues page or submit a Pull Request.
