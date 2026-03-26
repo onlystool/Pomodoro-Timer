@@ -1,0 +1,17 @@
+{
+  "name": "番茄时钟",
+  "short_name": "番茄时钟",
+  "description": "番茄时钟 - 专注工作，高效休息",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ba4949",
+  "theme_color": "#ba4949",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

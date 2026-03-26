@@ -2,7 +2,14 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="番茄时钟">
+  <meta name="theme-color" content="#ba4949">
+  <meta name="description" content="番茄时钟 - 专注工作，高效休息">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍅</text></svg>">
   <title>番茄时钟</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +19,7 @@
   <!-- Flash overlay for timer complete animation -->
   <div class="timer-flash" id="timerFlash"></div>
 
-  <!-- Custom Title Bar -->
+  <!-- Custom Title Bar (desktop only) -->
   <div class="titlebar" id="titlebar">
     <div class="titlebar-drag">
       <span class="titlebar-title">🍅 番茄时钟</span>
@@ -49,26 +56,37 @@
     <!-- Timer Container -->
     <div class="timer-container">
       <div class="mode-tabs">
-        <button class="mode-tab active" data-mode="pomodoro">Pomodoro</button>
-        <button class="mode-tab" data-mode="shortBreak">Short Break</button>
-        <button class="mode-tab" data-mode="longBreak">Long Break</button>
+        <button class="mode-tab active" data-mode="pomodoro">专注</button>
+        <button class="mode-tab" data-mode="shortBreak">短休息</button>
+        <button class="mode-tab" data-mode="longBreak">长休息</button>
       </div>
 
-      <div class="timer-display" id="timerDisplay">25:00</div>
+      <!-- Scrollable Time Picker (shown when not running) -->
+      <div class="time-picker" id="timePicker">
+        <div class="picker-hint-up">▲</div>
+        <div class="picker-wrapper">
+          <div class="picker-value" id="pickerValue">25</div>
+          <div class="picker-unit">分钟</div>
+        </div>
+        <div class="picker-hint-down">▼</div>
+      </div>
 
-      <button class="timer-action-btn" id="timerActionBtn">START</button>
+      <!-- Countdown Display (shown when running) -->
+      <div class="timer-display" id="timerDisplay" style="display: none;">25:00</div>
+
+      <button class="timer-action-btn" id="timerActionBtn">开始</button>
     </div>
 
     <!-- Pomodoro Counter -->
     <div class="pomo-counter">
       <span class="pomo-number" id="pomoNumber">#1</span>
-      <span class="pomo-message" id="pomoMessage">Time to focus!</span>
+      <span class="pomo-message" id="pomoMessage">准备开始专注！</span>
     </div>
 
     <!-- Tasks Section -->
     <div class="tasks-section">
       <div class="tasks-header">
-        <h2>Tasks</h2>
+        <h2>任务列表</h2>
         <button class="tasks-menu-btn" id="tasksMenuBtn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="2"/>
@@ -76,7 +94,6 @@
             <circle cx="12" cy="19" r="2"/>
           </svg>
         </button>
-        <!-- Tasks dropdown menu -->
         <div class="tasks-dropdown" id="tasksDropdown">
           <button class="dropdown-item" id="clearFinishedBtn">清除已完成</button>
           <button class="dropdown-item" id="clearAllBtn">清除全部</button>
@@ -85,9 +102,7 @@
       <div class="tasks-divider"></div>
 
       <!-- Task List -->
-      <div class="task-list" id="taskList">
-        <!-- Tasks will be rendered here -->
-      </div>
+      <div class="task-list" id="taskList"></div>
 
       <!-- Add Task Button / Form -->
       <div id="addTaskArea">
@@ -97,7 +112,7 @@
             <line x1="12" y1="8" x2="12" y2="16"/>
             <line x1="8" y1="12" x2="16" y2="12"/>
           </svg>
-          Add Task
+          添加任务
         </button>
 
         <div class="add-task-form" id="addTaskForm" style="display: none;">
@@ -111,8 +126,8 @@
             </div>
           </div>
           <div class="form-actions">
-            <button class="cancel-btn" id="cancelTaskBtn">Cancel</button>
-            <button class="save-btn" id="saveTaskBtn">Save</button>
+            <button class="cancel-btn" id="cancelTaskBtn">取消</button>
+            <button class="save-btn" id="saveTaskBtn">保存</button>
           </div>
         </div>
       </div>
@@ -128,24 +143,6 @@
       </div>
       <div class="modal-body">
         <div class="setting-group">
-          <h3>⏱ 时间 (分钟)</h3>
-          <div class="time-settings">
-            <div class="time-setting">
-              <label>Pomodoro</label>
-              <input type="number" id="settingPomodoro" min="1" max="90" value="25">
-            </div>
-            <div class="time-setting">
-              <label>Short Break</label>
-              <input type="number" id="settingShortBreak" min="1" max="30" value="5">
-            </div>
-            <div class="time-setting">
-              <label>Long Break</label>
-              <input type="number" id="settingLongBreak" min="1" max="60" value="15">
-            </div>
-          </div>
-        </div>
-
-        <div class="setting-group">
           <h3>🔄 自动化</h3>
           <div class="setting-row">
             <span>自动开始休息</span>
@@ -155,7 +152,7 @@
             </label>
           </div>
           <div class="setting-row">
-            <span>自动开始番茄</span>
+            <span>自动开始专注</span>
             <label class="toggle">
               <input type="checkbox" id="settingAutoPomodoro">
               <span class="toggle-slider"></span>
@@ -178,5 +175,11 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
 </body>
 </html>
