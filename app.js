@@ -305,16 +305,34 @@ function setupTimePicker() {
   }
 
   // Left/Right arrow clicks
+  const PICKER_STEPS = [1, 3, 5, 10, 15, 20, 25, 30, 45, 60];
+
   pickerLeft.addEventListener('click', (e) => {
     e.stopPropagation();
     if (isRunning) return;
-    setMinutes(getCurrentMinutes() - 1);
+    const current = getCurrentMinutes();
+    let nextVal = PICKER_STEPS[PICKER_STEPS.length - 1];
+    for (let i = PICKER_STEPS.length - 1; i >= 0; i--) {
+      if (PICKER_STEPS[i] < current) {
+        nextVal = PICKER_STEPS[i];
+        break;
+      }
+    }
+    setMinutes(nextVal);
   });
 
   pickerRight.addEventListener('click', (e) => {
     e.stopPropagation();
     if (isRunning) return;
-    setMinutes(getCurrentMinutes() + 1);
+    const current = getCurrentMinutes();
+    let nextVal = PICKER_STEPS[0];
+    for (let i = 0; i < PICKER_STEPS.length; i++) {
+      if (PICKER_STEPS[i] > current) {
+        nextVal = PICKER_STEPS[i];
+        break;
+      }
+    }
+    setMinutes(nextVal);
   });
 
   // Drag on the number itself
