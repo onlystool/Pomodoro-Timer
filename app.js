@@ -83,7 +83,6 @@ function startTimer() {
   if (isRunning) return;
 
   // Save the current picker value as the duration
-  modeDurations[currentMode] = parseInt(pickerValue.textContent) || modeDurations[currentMode];
   timeLeft = modeDurations[currentMode] * 60;
 
   isRunning = true;
@@ -207,7 +206,8 @@ function updateTimerDisplay() {
 }
 
 function updatePickerDisplay() {
-  pickerValue.textContent = modeDurations[currentMode];
+  const mins = modeDurations[currentMode];
+  pickerValue.textContent = `${String(mins).padStart(2, '0')}:00`;
 }
 
 function updateTitle() {
@@ -270,36 +270,60 @@ function setupTimePicker() {
   let startValue = 0;
   let isDragging = false;
 
+  const pickerLeft = document.getElementById('pickerLeft');
+  const pickerRight = document.getElementById('pickerRight');
+
   function clampValue(val) {
     return Math.max(1, Math.min(60, val));
   }
 
+  function getCurrentMinutes() {
+    return modeDurations[currentMode];
+  }
+
+  function setMinutes(val) {
+    modeDurations[currentMode] = clampValue(val);
+    updatePickerDisplay();
+    saveSettings();
+  }
+
+  // Left/Right arrow clicks
+  pickerLeft.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isRunning) return;
+    setMinutes(getCurrentMinutes() - 1);
+  });
+
+  pickerRight.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isRunning) return;
+    setMinutes(getCurrentMinutes() + 1);
+  });
+
+  // Drag on the number itself
   function onDragStart(y) {
     if (isRunning) return;
     isDragging = true;
     startY = y;
-    startValue = parseInt(pickerValue.textContent);
+    startValue = getCurrentMinutes();
     timePicker.classList.add('dragging');
   }
 
   function onDragMove(y) {
     if (!isDragging) return;
     const delta = startY - y;
-    const step = Math.round(delta / 15); // 15px per minute
-    const newVal = clampValue(startValue + step);
-    pickerValue.textContent = newVal;
+    const step = Math.round(delta / 15);
+    setMinutes(startValue + step);
   }
 
   function onDragEnd() {
     if (!isDragging) return;
     isDragging = false;
     timePicker.classList.remove('dragging');
-    modeDurations[currentMode] = parseInt(pickerValue.textContent);
-    saveSettings();
   }
 
-  // Mouse events
-  timePicker.addEventListener('mousedown', (e) => {
+  // Mouse events on picker value
+  pickerValue.addEventListener('mousedown', (e) => {
     e.preventDefault();
     onDragStart(e.clientY);
   });
@@ -307,7 +331,7 @@ function setupTimePicker() {
   document.addEventListener('mouseup', () => onDragEnd());
 
   // Touch events (iPad/iOS)
-  timePicker.addEventListener('touchstart', (e) => {
+  pickerValue.addEventListener('touchstart', (e) => {
     e.preventDefault();
     onDragStart(e.touches[0].clientY);
   }, { passive: false });
@@ -319,16 +343,12 @@ function setupTimePicker() {
   }, { passive: false });
   document.addEventListener('touchend', () => onDragEnd());
 
-  // Mouse wheel
+  // Mouse wheel on the picker area
   timePicker.addEventListener('wheel', (e) => {
     if (isRunning) return;
     e.preventDefault();
-    const current = parseInt(pickerValue.textContent);
     const direction = e.deltaY > 0 ? -1 : 1;
-    const newVal = clampValue(current + direction);
-    pickerValue.textContent = newVal;
-    modeDurations[currentMode] = newVal;
-    saveSettings();
+    setMinutes(getCurrentMinutes() + direction);
   }, { passive: false });
 }
 
