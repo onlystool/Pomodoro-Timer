@@ -143,9 +143,9 @@ body {
 }
 
 .timer-display {
-  font-size: 100px;
-  font-weight: 800;
-  letter-spacing: -2px;
+  font-size: 96px;
+  font-weight: 600;
+  letter-spacing: 2px;
   line-height: 1;
   margin-bottom: 20px;
   font-variant-numeric: tabular-nums;
